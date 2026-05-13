@@ -124,3 +124,100 @@ The file frames itself as a bootstrapping aid for sessions where no `CLAUDE.md` 
 - A prompt produces consistently poor results on first attempt — e.g. Claude defaults to writing output rather than asking questions despite the prompt's instruction. The response is to tighten the prompt's framing, not to remove the file.
 - The standard itself evolves such that the prompts reference sections that have moved or been renamed. Update the prompts to match; this is a routine sync, not a structural reversal.
 - The self-application test reveals that the prompts are unnecessary because the standard's existing intro guidance is enough. This would be a real reversal and would warrant deleting the file rather than maintaining it.
+
+---
+
+### D-004 Standard revisions following first self-audit
+
+**Date:** 2026-05-13
+**Status:** Accepted
+**Authors:** Shane Hartley; Claude (review session, acting on self-audit findings from Claude Code session)
+**Related:** D-001, D-002, D-003; the standard's revised Provenance log; `SELF_AUDIT.md` (untracked, diagnostic only)
+
+**Context.** The first self-audit run against this repo (2026-05-13, using `PROMPTS.md` prompt 2 modified for recursive self-application) identified ten standard-level findings and seven repo-level conflicts. The highest-leverage finding was a logical contradiction inside the standard itself: the Tier 1 framing ("every project, no exceptions") directly conflicted with the cost note's friction test ("Skip a Tier 2 or Tier 3 doc when...", which implicitly denied Tier 1 the same treatment). The contradiction was not a meta-level quirk of this repo — it affects every project that legitimately omits a Tier 1 document for principled reasons (documentation-only repos, solo toy projects, throwaway experiments). Two drafting sessions had not caught it.
+
+**Options considered.**
+
+- **A. Treat the audit findings as repo-only and leave the standard unchanged.** Rejected: the Tier 1 contradiction is in the standard, not in the repo's application of it. Leaving it would propagate the contradiction to every future user.
+
+- **B. Address every finding from the audit in one large revision.** Rejected: some findings are minor or judgement-call (e.g. refreshing Last reviewed without a textual edit) and bundling them with load-bearing changes would obscure rationale. Better to act on the high-leverage findings and defer the rest.
+
+- **C. Action a coherent five-edit package — two standard changes (Tier 1 reconciliation, Documentation-as-deliverable Workflow Variation), three repo changes (CLAUDE.md, CHANGELOG sync, README map update), plus minor housekeeping for the standard itself (ATTACK_VECTORS detection rule, Evolution-section recursive-application paragraph, project-specific-extensions clause).** Chosen.
+
+**Decision.** Option C. The five-edit package:
+
+1. **Tier 1 framing reconciled with the cost note.** Header softened to "Default minimum (every project, with narrow documented exemptions)." Body text requires Tier 1 omissions to be recorded as `DECISIONS.md` entries. The cost note extended to explicitly cover Tier 1 with the same friction test plus the documented-exemption requirement.
+
+2. **Documentation-as-deliverable Workflow Variation added** to the Creation Order section, parallel to AI-first and Research-driven. Spells out how Tier 1 documents adapt for non-code deliverables: which sections become N/A, which become "How to use" rather than "Quick Start," which are legitimate exemptions for documentation projects.
+
+3. **ATTACK_VECTORS Maintenance Rule 4 softened** from "Detection is not optional" to "Detection is defined, not necessarily automated." Manual / structural review now explicitly named as a valid detection method, matching the spec's existing examples and preventing the rule from being unusable for documentation-style projects.
+
+4. **Recursive-application paragraph added to Evolution section.** Explicit statement that the host repo follows the standard with documented exemptions, and that periodic self-audits are the recommended mechanism for catching drift and meta-level gaps. References the 2026-05-13 audit as the canonical case for what the recursive check is for.
+
+5. **Project-specific-extensions clause added to Evolution section.** Lists reserved document names and the conditions under which projects may add document types beyond those the standard names (DECISIONS entry recording the reason, no name collisions, consistent conventions). Resolves the audit's §5.7 finding without enumerating every possible document type in the standard.
+
+Plus the corresponding repo changes (CLAUDE.md added; CHANGELOG synced to record D-002, D-003, skeletons, PROMPTS.md; README documentation map updated). The repo changes are tracked in CHANGELOG `[Unreleased]` rather than retroactively modifying v0.1.0.
+
+**Consequences.**
+
+- The standard is now internally consistent. The Tier 1 / cost-note contradiction is resolved.
+- The host repo's Tier 1 omissions (`FEATURES.md`, `ROADMAP.md`) become principled exemptions rather than violations, provided they are recorded in DECISIONS — see D-005 and D-006 below.
+- Documentation-only projects (style guides, RFCs, standards, books, dataset documentation) have an explicit Workflow Variation to follow, rather than having to improvise.
+- The standard now formally permits project-specific extensions. `PROMPTS.md` (an extension this repo added) is retrospectively legitimised via D-003; future projects can add similar extensions without violating the standard.
+- Backward compatibility holds: no document types removed, no IDs renumbered. The five existing reserved names (`F-`, `C-`, `D-`, `AV-`, status vocabularies) are unchanged.
+- The audit pattern itself is now part of the standard's recommended practice, not just an ad-hoc experiment. Future self-audits or audits of other projects use the same prompt and produce comparable artifacts.
+
+**Reversal conditions.** Revisit if any of the following hold:
+
+- The softened Tier 1 framing produces drift in practice — i.e. projects start exempting Tier 1 documents without writing DECISIONS entries, and the exemptions accumulate as silent omissions. Response: tighten enforcement guidance, possibly add a `tools/check_tier1_exemptions.py` to the standard's recommended tooling.
+- The Documentation-as-deliverable variation proves under-specified — a real documentation project tries to apply it and reports that critical adaptation cases are missing. Response: extend the variation rather than reverse it.
+- A subsequent self-audit on this repo or another finds new contradictions in the standard introduced by these changes. Response: revise; this is the standard doing its job.
+- Project-specific extensions multiply to the point where the reserved-names list is restrictive or the no-collision rule produces conflicts. Response: revisit the extension clause, possibly with a namespace convention.
+
+---
+
+### D-005 Tier 1 exemption: `FEATURES.md`
+
+**Date:** 2026-05-13
+**Status:** Accepted
+**Authors:** Shane Hartley; Claude (review session)
+**Related:** D-001, D-004; the standard's Documentation-as-deliverable Workflow Variation
+
+**Context.** Following the Tier 1 framing softening (D-004), Tier 1 omissions are permitted but must be recorded as DECISIONS entries naming the document, the reason, and the revisit conditions. This repo's primary deliverable is `development_documentation.md` — a standard document — not a software tool with capabilities. The conventional content of `FEATURES.md` (MoSCoW-prioritised capabilities with acceptance criteria) does not map naturally onto a documentation deliverable.
+
+**Decision.** Exempt this repo from `FEATURES.md`. The repo's "features," in the conventional sense, are the standard's tier system, stable ID conventions, status vocabularies, and lifecycle transitions — all of which are documented in the standard itself (§Document Tiers, §Per-Document Specifications, §Project lifecycle). Duplicating this content into a separate `FEATURES.md` would create a maintenance burden with no signal value.
+
+**Consequences.**
+
+- The repo has no `FEATURES.md`. The CHANGELOG and DECISIONS entries reference document types in `development_documentation.md` directly rather than via `F-NNN` IDs.
+- `D-002` and `D-003` (which reference companion artifacts) point at filenames (`skeletons/`, `PROMPTS.md`) rather than stable feature IDs. This is acceptable for now; if companion artifacts multiply, the exemption stops being free.
+
+**Reversal conditions.** Reverse this exemption (i.e. add a real `FEATURES.md` to the repo) if any of the following hold:
+
+- The repo accumulates companion artifacts (`examples/`, validation scripts, sibling documents) such that referring to them by filename in DECISIONS / CHANGELOG becomes ambiguous or brittle.
+- The standard begins versioning components independently (e.g. the tier system gets revised independently of the lifecycle vocabulary), and stable IDs would help track which component is at which version.
+- Adoption grows to the point where users frequently ask "what does this repo deliver?" — at which point a clear capability list earns its place.
+
+---
+
+### D-006 Tier 1 exemption: `ROADMAP.md`
+
+**Date:** 2026-05-13
+**Status:** Accepted
+**Authors:** Shane Hartley; Claude (review session)
+**Related:** D-001, D-004; the standard's Evolution section
+
+**Context.** The standard isn't built in phases; it is revised inline as material findings emerge (the inline Provenance log in the standard's header is the audit trail). A `ROADMAP.md` listing "Phase 1: foundation, Phase 2: ..., Phase 3: ..." would be either fiction or a duplicate of the Provenance log.
+
+**Decision.** Exempt this repo from `ROADMAP.md`. The standard's own Provenance log, plus this DECISIONS.md, plus the CHANGELOG, together capture the project's history and forward intent without need for a separate phased plan.
+
+**Consequences.**
+
+- The repo has no `ROADMAP.md`. Planning is captured implicitly: short-term in CHANGELOG `[Unreleased]`, medium-term in DECISIONS reversal conditions (which name the triggers that would prompt future work), long-term in the standard's Provenance log of completed material revisions.
+- No "Active → Complete" transition checklist item references `ROADMAP.md` for this repo. The standard's lifecycle section has been updated (D-004) to permit exempted-document checklist items to be skipped.
+
+**Reversal conditions.** Reverse this exemption (i.e. add a real `ROADMAP.md` to the repo) if any of the following hold:
+
+- The standard reaches sufficient complexity that material revisions need to be planned in phases (e.g. "v1.0 deprecates X; v1.1 adds Y; v2.0 reorganises the tier system") rather than landing as ad-hoc inline revisions.
+- The repo grows enough infrastructure (tooling, examples, sibling documents) that coordinating their evolution becomes a planning task in its own right.
+- The standard reaches sufficient adoption that external users need visibility into upcoming changes (i.e. a public roadmap becomes a feature).

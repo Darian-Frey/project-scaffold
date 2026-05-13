@@ -1,6 +1,6 @@
 > **Status:** Active
-> **Provenance:** Claude (initial 2026-05-07; revised 2026-05-12 adding DECISIONS.md, ATTACK_VECTORS.md, CLAIMS.md formalisation, project lifecycle, tooling integration, cost framing; revised 2026-05-12 tightening tooling integration, harmonising Authors/Provenance distinction, marking tooling references as illustrative, adding standard self-evolution rule)
-> **Last reviewed:** 2026-05-12
+> **Provenance:** Claude (initial 2026-05-07; revised 2026-05-12 adding DECISIONS.md, ATTACK_VECTORS.md, CLAIMS.md formalisation, project lifecycle, tooling integration, cost framing; revised 2026-05-12 tightening tooling integration, harmonising Authors/Provenance distinction, marking tooling references as illustrative, adding standard self-evolution rule; revised 2026-05-13 reconciling Tier 1 framing with the cost note's friction test, adding Documentation-as-deliverable Workflow Variation, softening ATTACK_VECTORS detection rule, adding recursive-application and project-specific-extensions clauses to Evolution section — motivated by first self-audit of host repo)
+> **Last reviewed:** 2026-05-13
 > **Why this status:** Living standard for project documentation. Refresh as conventions evolve.
 
 # Development Documentation Standard
@@ -42,7 +42,7 @@ The critical separations:
 
 ## Document Tiers
 
-### Tier 1 — Always (every project, no exceptions)
+### Tier 1 — Default minimum (every project, with narrow documented exemptions)
 
 | File | Purpose | SDLC phase |
 |------|---------|-----------|
@@ -52,6 +52,8 @@ The critical separations:
 | `CLAUDE.md` | Handoff document for Claude Code / AI development sessions. | Implementation (continuous) |
 | `CHANGELOG.md` | Version history; what changed and when. | Implementation (continuous) |
 | `LICENSE` | Legal terms. Pick one before first public commit. | Planning |
+
+Tier 1 is the default minimum below which projects reliably suffer. Legitimate exemptions exist — a documentation-only repo may not need `FEATURES.md` or `ROADMAP.md`; a single-developer toy project may not need `CLAUDE.md`; a private throwaway may not need `LICENSE` — but each exemption must be recorded as a `DECISIONS.md` entry naming the document, the reason it does not apply, and the conditions under which the exemption should be revisited. This keeps Tier 1 disciplined: omissions are deliberate and auditable rather than oversights. The cost-note friction test applies; documenting the exemption is what distinguishes a principled omission from drift.
 
 ### Tier 2 — Strongly recommended (most non-trivial projects)
 
@@ -100,6 +102,17 @@ Tier 3 documents are added when their trigger condition fires (see the Quick Dec
 **AI-first projects.** When Claude Code (or another AI coding partner) is the primary development environment from the start, create `CLAUDE.md` at step 2, immediately after `README.md`, so the AI partner has project state to read from day one. The remaining conceptual order is unchanged.
 
 **Research-driven projects.** When the project is primarily research with code as a deliverable (e.g. a theoretical physics paper with accompanying simulation code), create `CLAIMS.md` at step 2 or 3, before or alongside `FEATURES.md`. The claims define what the code must demonstrate; features then describe the tooling required to test the claims. `ARCHITECTURE.md` and `SPEC.md` may also start earlier than usual, since the mathematical framework often precedes the code.
+
+**Documentation-as-deliverable projects.** When the project's primary output is documentation itself (a style guide, a standard, an RFC, a long-form essay or book, a dataset's documentation), several Tier 1 documents need adapting rather than applying verbatim:
+
+- `README.md` — the "Quick Start" section may become a "How to use" paragraph (there is no "running output"); "Build requirements" and "Project structure" may be reduced to a one-line directory note or omitted as trivial. The README still leads with the status header and one-paragraph description.
+- `CLAUDE.md` — Build & test commands and Architectural invariants sections will be empty or near-empty; emphasis shifts to Conventions (writing style, terminology), Out of scope, and any rules about how the documentation itself is maintained (e.g. "refresh the Provenance log on every material edit").
+- `FEATURES.md` and `ROADMAP.md` — often legitimate Tier 1 exemptions (record via DECISIONS), because the deliverable's "features" are the document's structure, and revisions happen inline rather than in phases. If the project does grow companion artifacts (validators, examples, sibling documents) that warrant stable IDs, the exemption stops being free and these documents come back in.
+- `SPEC.md` — the documentation deliverable usually *is* the spec, possibly under a domain-fitting name.
+- `ATTACK_VECTORS.md` — failure modes for documentation projects (drift, contradiction, staleness, cross-reference rot) typically lack automated detection. "Manual / structural review" is a valid detection method; the standard's intent is that detection is *defined*, not that it is *automated*.
+- Project Lifecycle transitions — checklist items that reference exempt documents (e.g. "all `FEATURES.md` Must-priority entries Complete") are themselves exempt for that project; the DECISIONS entry recording the original exemption is sufficient.
+
+This variation also covers the recursive case where the standard is its own deliverable. See **Evolution of this standard** below.
 
 **Rule of thumb:** if you find yourself writing code before `FEATURES.md` (or `CLAIMS.md`, for research) exists, stop. You're guessing at scope rather than defining it.
 
@@ -333,7 +346,7 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 1. **Stable IDs.** `AV-001`, `AV-002`, …, append-only. Referenced from tests, commits, and DECISIONS entries.
 2. **Co-authored when a critic tool is in use.** Crucible (or equivalent) suggests; the author adjudicates. Without such a tool, the author maintains it from review activity.
 3. **Cross-reference both directions.** ATTACK_VECTORS entries name the related DECISIONS and CLAIMS; those documents reference back. (See Maintenance Rules below for tooling.)
-4. **Detection is not optional.** Every vector must state how it is checked. A vector without a detection method is a worry, not a vector.
+4. **Detection is defined, not necessarily automated.** Every vector must state how it is checked — a test path, a tool invocation, or a manual / structural review procedure. The requirement is that *some* repeatable check exists; for documentation-style projects, the natural failure modes (drift, contradiction, staleness, cross-reference rot) often cannot be detected automatically and "manual review during quarterly audit" is a valid detection method. A vector without any defined detection is a worry, not a vector.
 
 ### `BUILD.md`
 
@@ -436,6 +449,10 @@ This document is itself subject to its own rules. Material changes are logged in
 When the standard reaches sufficient complexity to warrant it — multiple contributors, contested changes, or formal versioning needs — it becomes a project in its own right with its own `DECISIONS.md` recording the rationale for each material revision and what alternatives were rejected. Until then, the inline Provenance log in the header is the audit trail.
 
 Backward compatibility is preserved by the append-only ID rule: no revision of this standard removes or renumbers a document type. New document types may be added (as CLAIMS.md was in the 2026-05-12 revision), but `D-007` in any project always means the same entry it did when written.
+
+**Recursive application to the host repo.** The repository that hosts the standard should itself follow the standard. Where the standard's prescriptions don't apply cleanly to a documentation-only repo (see the Documentation-as-deliverable Workflow Variation above), each exemption is recorded as a `DECISIONS.md` entry in the host repo's own DECISIONS log, naming the exempt document and the reason. The pattern of a periodic self-audit (running the audit prompt in `PROMPTS.md` or equivalent against the host repo) is the recommended mechanism for catching drift, internal contradictions, and meta-level gaps. The first such audit on this repo (2026-05-13) discovered the original "Tier 1 — no exceptions" / cost-note contradiction and motivated this revision; this is the canonical case for what the recursive check is for.
+
+**Project-specific extensions.** Projects may add document types beyond those the standard names (this repo, for example, adds `PROMPTS.md` for cold-start aid; another project might add `BUDGET.md`, `RELEASE_PROCESS.md`, or domain-specific files). Such extensions are not violations of the standard provided that (a) the new document is recorded in the project's `DECISIONS.md` with the reason for adding it, (b) it does not collide with reserved names (`README`, `FEATURES`, `CLAIMS`, `DECISIONS`, `ARCHITECTURE`, `SPEC`, `ATTACK_VECTORS`, `BUILD`, `CHANGELOG`, `CLAUDE`, `ROADMAP`, `VOCABULARY`, `TESTING`, `SECURITY`, `CONTRIBUTING`, `BENCHMARKS`, `CITATION`), and (c) it follows the same conventions as analogous standard documents (stable IDs if it lists entries; status header if it has lifecycle state). The standard deliberately does not enumerate every possible document type; project extension is the supported escape hatch.
 
 ---
 
@@ -692,9 +709,11 @@ The Quick Decision Guide below leans towards adding documents because the absenc
 - A specific doc's content is genuinely covered by another (e.g. `ARCHITECTURE.md` may be unnecessary for a single-file project; `DECISIONS.md` may be unnecessary if no significant choices were made).
 - Maintenance burden would exceed signal value (don't write a CHANGELOG for a project no one else will ever read; don't write CLAIMS for code that makes no scientific assertions).
 
+The same friction test applies to **Tier 1**, with one additional requirement: any Tier 1 omission must be recorded as a `DECISIONS.md` entry (see the Tier 1 table above). This keeps the discipline — Tier 1 omissions are principled exemptions with stated reasoning, not silent gaps. Examples: a documentation-only repo may legitimately exempt `FEATURES.md` and `ROADMAP.md` because the deliverable has no features or phases in the conventional sense; a solo-developer toy project may exempt `CLAUDE.md` if no AI-assisted sessions are planned. In each case the friction test is the operational threshold, and the DECISIONS entry is the audit trail.
+
 The operational test is **friction**: are you currently or recently confused about something the absent doc would have answered? If yes, add it. If no, the absence isn't costing you anything yet. Adding documents pre-emptively against confusion that never arrives is itself a form of waste.
 
-The Tier 1 set is the minimum below which projects reliably suffer. Tier 2 and Tier 3 are case-by-case.
+The Tier 1 set is the default minimum below which projects reliably suffer; exemptions are narrow and documented. Tier 2 and Tier 3 are case-by-case.
 
 ---
 

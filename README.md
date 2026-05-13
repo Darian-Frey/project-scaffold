@@ -13,15 +13,20 @@ The standard is designed to serve two audiences simultaneously: humans returning
 
 ## How to use this
 
-Drop [`development_documentation.md`](development_documentation.md) into a chat session at the start of work on any project. It gives Claude (or any collaborator) the conventions to follow when creating or updating project documentation.
+The fastest path: open [`PROMPTS.md`](PROMPTS.md), pick the prompt that matches your situation (new project, audit an existing repo, or revive a Dormant project), and paste it into a chat session along with `development_documentation.md`.
 
-For a new project, the standard's **Creation Order** section tells you which document to write first; the **Quick Decision Guide** at the end tells you which Tier 2 and Tier 3 documents are worth adding based on the project's nature.
+For more control, drop [`development_documentation.md`](development_documentation.md) into a chat session at the start of work on any project to give Claude (or any collaborator) the conventions to follow. The standard's **Creation Order** section tells you which document to write first; the **Quick Decision Guide** at the end tells you which Tier 2 and Tier 3 documents are worth adding based on the project's nature.
+
+For specific document types, the [`skeletons/`](skeletons/) directory holds copy-paste-ready starter files — copy the relevant `*.skeleton.md`, drop the `.skeleton` segment, and fill in the placeholders.
 
 ## Documentation
 
-- [Development Documentation Standard](development_documentation.md) — the standard itself
+- [Development Documentation Standard](development_documentation.md) — the standard itself (and the spec for this repo, per the Documentation-as-deliverable Workflow Variation)
+- [Starter prompts](PROMPTS.md) — three cold-start prompts for new sessions
+- [Skeletons](skeletons/) — copy-paste-ready starter files for each document type
 - [Decisions](DECISIONS.md) — design decisions for this repo
 - [Changelog](CHANGELOG.md) — version history
+- [CLAUDE.md](CLAUDE.md) — handoff for AI-assisted contributions to this repo
 
 ## License
 

@@ -1,0 +1,28 @@
+# Self-audit reports — produced by running PROMPTS.md prompt 2 against this repo.
+# Audits are diagnostic artifacts; review and act on them, then delete.
+# If a specific audit warrants preservation, commit it deliberately with a DECISIONS entry.
+SELF_AUDIT.md
+audit-*.md
+
+# Editor and OS cruft
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Backup files
+*.bak
+*.orig
+
+# Python (in case scaffolding/validation scripts get added later)
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
