@@ -10,7 +10,8 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 
 ### D-001 Standard format: tiered documents, stable IDs, lifecycle vocabulary
 
-**Date:** 2026-05-13
+**Decided:** 2026-05-13
+**Recorded:** 2026-05-13
 **Status:** Accepted
 **Authors:** Shane Hartley; Claude (multiple sessions, 2026-05-07 to 2026-05-12)
 **Related:** `development_documentation.md` (the standard itself)
@@ -52,7 +53,8 @@ If a reversal is triggered, the response is a new `D-NNN` entry proposing the re
 
 ### D-002 Add `skeletons/` directory rather than a separate usage guide
 
-**Date:** 2026-05-13
+**Decided:** 2026-05-13
+**Recorded:** 2026-05-13
 **Status:** Accepted
 **Authors:** Shane Hartley; Claude (review session)
 **Related:** D-001; `skeletons/` directory contents
@@ -88,7 +90,8 @@ Skeletons for ARCHITECTURE, SPEC, BUILD, and other Tier 3 docs (VOCABULARY, TEST
 
 ### D-003 Add `PROMPTS.md` with three narrow bootstrapping prompts
 
-**Date:** 2026-05-13
+**Decided:** 2026-05-13
+**Recorded:** 2026-05-13
 **Status:** Accepted
 **Authors:** Shane Hartley; Claude (review session)
 **Related:** D-002; `PROMPTS.md`
@@ -129,7 +132,8 @@ The file frames itself as a bootstrapping aid for sessions where no `CLAUDE.md` 
 
 ### D-004 Standard revisions following first self-audit
 
-**Date:** 2026-05-13
+**Decided:** 2026-05-13
+**Recorded:** 2026-05-13
 **Status:** Accepted
 **Authors:** Shane Hartley; Claude (review session, acting on self-audit findings from Claude Code session)
 **Related:** D-001, D-002, D-003; the standard's revised Provenance log; `SELF_AUDIT.md` (untracked, diagnostic only)
@@ -178,7 +182,8 @@ Plus the corresponding repo changes (CLAUDE.md added; CHANGELOG synced to record
 
 ### D-005 Tier 1 exemption: `FEATURES.md`
 
-**Date:** 2026-05-13
+**Decided:** 2026-05-13
+**Recorded:** 2026-05-13
 **Status:** Accepted
 **Authors:** Shane Hartley; Claude (review session)
 **Related:** D-001, D-004; the standard's Documentation-as-deliverable Workflow Variation
@@ -202,7 +207,8 @@ Plus the corresponding repo changes (CLAUDE.md added; CHANGELOG synced to record
 
 ### D-006 Tier 1 exemption: `ROADMAP.md`
 
-**Date:** 2026-05-13
+**Decided:** 2026-05-13
+**Recorded:** 2026-05-13
 **Status:** Accepted
 **Authors:** Shane Hartley; Claude (review session)
 **Related:** D-001, D-004; the standard's Evolution section
@@ -221,3 +227,58 @@ Plus the corresponding repo changes (CLAUDE.md added; CHANGELOG synced to record
 - The standard reaches sufficient complexity that material revisions need to be planned in phases (e.g. "v1.0 deprecates X; v1.1 adds Y; v2.0 reorganises the tier system") rather than landing as ad-hoc inline revisions.
 - The repo grows enough infrastructure (tooling, examples, sibling documents) that coordinating their evolution becomes a planning task in its own right.
 - The standard reaches sufficient adoption that external users need visibility into upcoming changes (i.e. a public roadmap becomes a feature).
+
+---
+
+### D-007 Standard revisions following second self-audit (Arithmancy)
+
+**Decided:** 2026-05-13
+**Recorded:** 2026-05-13
+**Status:** Accepted
+**Authors:** Shane Hartley; Claude (review session, acting on self-audit findings from Claude Code session against the Arithmancy repo)
+**Related:** D-001, D-004; Arithmancy `SELF_AUDIT.md` (untracked, diagnostic only)
+
+**Context.** The second self-audit run was a recursive application of `PROMPTS.md` prompt 2 (modified for the Complete-state case) against the Arithmancy repo — a CUDA/C++ Mersenne-prime engine asserted as Complete but not yet declared so. The audit surfaced five standard-level findings, all independently actionable, in addition to thirteen repo-level recommendations specific to Arithmancy.
+
+The Arithmancy-specific recommendations are Shane's responsibility to action in his own repo. This entry covers only the standard-level changes that land in `project-scaffold` itself.
+
+**Standard-level findings (from audit §5):**
+
+1. **Retroactive completion path is unspecified.** The Active → Complete checklist references documents the standard would have built up during Active phase. For late-adopting projects, every item is vacuously unmet; the transition cannot be honestly ticked.
+2. **Friction test is post-hoc; Complete projects need a forward-looking variant.** The present-tense friction test ("are you currently confused?") fires for nothing when no one is currently developing. But Complete is precisely when future-revival cost matters most.
+3. **`CLAUDE.md` spec implicitly assumes Active state.** For Complete projects the document's role shifts from handoff-for-continuation to handoff-for-revival; the section shape needs to adapt.
+4. **Retroactive DECISIONS entries have ambiguous date semantics.** A single `Date:` field cannot capture both when a decision was made and when it was documented; these diverge significantly for retroactive entries.
+5. **ATTACK_VECTORS `Detection: not implemented` is itself signal.** For Complete projects whose verification machinery was never operationalised (Arithmancy's Gerbicz check, asynchronous checkpointing), the honest entry reads "Detection: not implemented." The standard's previous wording ambiguously suggested this was unacceptable.
+
+**Options considered.**
+
+- **A. Defer the standard changes; address only Arithmancy.** Rejected. All five findings are general to projects following the standard, not specific to Arithmancy. The Complete-state lifecycle is genuinely underspecified; leaving the gaps in place propagates them to every future Complete-state project.
+- **B. Bundle the changes into a single revision pass.** Chosen. The five findings are mutually reinforcing — the Retroactive Completion path explicitly references the Forward-Revival friction test; the Complete-state `CLAUDE.md` variant references both; the date-field convention is needed for retroactive DECISIONS entries that the Retroactive Completion path explicitly requires. Bundling them produces a coherent Complete-state story rather than five disconnected edits.
+
+**Decision.** Option B. Five revisions to the standard:
+
+1. **New §Project lifecycle subsection: Retroactive completion.** Specifies the minimum acceptable path for a project that finishes development without having adopted the standard during Active phase — status header update + single sealing DECISIONS entry covering bulk exemptions and divergences + optional CLAIMS audit pass for projects with empirical claims in marketing prose. Explicitly notes that retroactive completion is not a discount on the standard but a recognised path that produces a smaller honest set of documents.
+
+2. **New paragraph in §A note on cost: Future-revival friction test.** Forward-tense variant of the friction test, triggered by Complete-state transitions. Threshold tiers (mandatory / strongly recommended / case-by-case) framed around the "would absence force archaeology rather than execution?" question.
+
+3. **New §Workflow variations entry: Complete-state projects.** Sits alongside AI-first, Research-driven, and Documentation-as-deliverable. Spells out the four-section adaptation: Current state → Frozen state at completion; Active task → Revival triggers; Out of scope (with added weight); new section "What to read first on revival." Notes that the Complete-state CLAUDE.md is typically half the length of an Active-state one because it orients toward a decision to begin work, not toward work itself.
+
+4. **DECISIONS entry skeleton revised: Decided / Recorded date fields.** The single `Date:` field is replaced with two: `Decided:` (when the choice was made) and `Recorded:` (when the entry was written). For normal entries both are identical; for retroactive entries they diverge. Either field alone is acceptable when the other is unknown. The convention is added to the standard's entry-format example, file-header description, and skeleton file under `skeletons/DECISIONS.skeleton.md`. The six existing entries in this repo's `DECISIONS.md` were migrated to the new format (all six are non-retroactive, so both dates are 2026-05-13).
+
+5. **ATTACK_VECTORS Maintenance Rule 4 extended.** Detection is now defined as falling into three categories: implemented automated, implemented manual, and acknowledged-but-not-implemented. The third option (`Detection: not implemented (would require X); see CLAIMS C-NNN`) is now first-class — particularly relevant for Complete-state projects whose claimed verification was never operationalised, and for early-Active projects where vectors are identified before detection tooling exists. An undetected vector is itself signal; the rule's intent (no undefined detection) is preserved by requiring one of the three categories.
+
+**Consequences.**
+
+- Complete-state lifecycle transitions are now well-defined for both standard-adopting-from-day-one projects and standard-adopting-at-completion projects. The Arithmancy-style situation has a recognised path.
+- The forward-revival friction test makes Complete-state documentation decisions principled rather than vacuous. Projects can apply the same operational test to both Active and Complete phases without contradiction.
+- AI-assisted revival of Complete projects has explicit guidance via the Complete-state `CLAUDE.md` variant. Future sessions opened against a Complete project's repo will read the right shape of context document.
+- Retroactive DECISIONS entries are now syntactically distinguishable from normal ones, preserving audit traceability across both fresh and backfilled cases.
+- ATTACK_VECTORS entries can now be honest about unimplemented verification without violating the detection rule. The Arithmancy audit's finding (Gerbicz check claimed in README, not implemented in V2.0.0-GOLD) becomes recordable as a legitimate vector with `Detection: not implemented`.
+- Backward compatibility holds. Existing DECISIONS entries using single `Date:` are not invalid — the migration to Decided/Recorded is a recommended update, not a requirement. No document types removed; no IDs renumbered.
+
+**Reversal conditions.** Revisit if any of the following hold:
+
+- The Retroactive Completion path produces drift in practice — projects use it to skip documentation work that the forward-tense friction test would have required. Response: tighten the "Mandatory" threshold in the forward-revival test, possibly require a CLAIMS audit pass rather than marking it optional.
+- The Decided/Recorded date convention causes confusion in practice (people unsure which to fill, or both repeatedly identical making the second field feel ceremonial). Response: simplify back to a single `Date:` field with annotations for retroactive cases, accepting the audit-traceability loss.
+- A third self-audit (or external user report) finds that the Complete-state `CLAUDE.md` variant is still under-specified for some workflow we haven't anticipated. Response: extend the variant rather than reverse it.
+- The "not implemented" detection option leads to projects shipping with many such entries and never operationalising the detection. Response: add a maintenance rule that "Detection: not implemented" entries trigger periodic review and either implementation or downgrade to "Withdrawn." This would be an additive rule, not a reversal.

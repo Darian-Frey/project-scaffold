@@ -5,6 +5,13 @@ Append-only log of significant design decisions with rationale and reversal cond
 Stable IDs (D-NNN) are sequential and never reused.
 Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 
+Date fields:
+- "Decided:" is when the choice was actually made.
+- "Recorded:" is when the entry was written.
+- Same date for normal entries. For retroactive entries (e.g. during retroactive completion),
+  the two diverge — set Decided to the original date if recoverable (e.g. from a commit),
+  or omit Decided and annotate if the original date is lost.
+
 Maintenance rules:
 - Append-only. Reversed decisions get a new entry; old entry status becomes "Superseded by D-NNN".
 - One decision per entry.
@@ -15,7 +22,7 @@ Maintenance rules:
 
 Append-only log of significant design decisions for {project name}.
 
-Each entry: D-NNN, dated ISO 8601, with status, context, options, decision, consequences, and reversal conditions.
+Each entry: D-NNN, with Decided and Recorded dates (ISO 8601), status, context, options, decision, consequences, and reversal conditions.
 
 Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 
@@ -23,7 +30,8 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 
 ### D-001 {Decision title}
 
-**Date:** YYYY-MM-DD
+**Decided:** YYYY-MM-DD
+**Recorded:** YYYY-MM-DD
 **Status:** {Proposed | Accepted | Superseded by D-NNN | Deprecated}
 **Authors:** {author} (with {critic tool} review {date} if applicable)
 **Related:** F-NNN, C-NNN, AV-NNN

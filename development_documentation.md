@@ -1,5 +1,5 @@
 > **Status:** Active
-> **Provenance:** Claude (initial 2026-05-07; revised 2026-05-12 adding DECISIONS.md, ATTACK_VECTORS.md, CLAIMS.md formalisation, project lifecycle, tooling integration, cost framing; revised 2026-05-12 tightening tooling integration, harmonising Authors/Provenance distinction, marking tooling references as illustrative, adding standard self-evolution rule; revised 2026-05-13 reconciling Tier 1 framing with the cost note's friction test, adding Documentation-as-deliverable Workflow Variation, softening ATTACK_VECTORS detection rule, adding recursive-application and project-specific-extensions clauses to Evolution section — motivated by first self-audit of host repo)
+> **Provenance:** Claude (initial 2026-05-07; revised 2026-05-12 adding DECISIONS.md, ATTACK_VECTORS.md, CLAIMS.md formalisation, project lifecycle, tooling integration, cost framing; revised 2026-05-12 tightening tooling integration, harmonising Authors/Provenance distinction, marking tooling references as illustrative, adding standard self-evolution rule; revised 2026-05-13 reconciling Tier 1 framing with the cost note's friction test, adding Documentation-as-deliverable Workflow Variation, softening ATTACK_VECTORS detection rule, adding recursive-application and project-specific-extensions clauses to Evolution section — motivated by first self-audit of host repo; revised 2026-05-13 adding Retroactive completion path, Future-revival friction test, Complete-state CLAUDE.md Workflow Variation, Decided/Recorded date fields for DECISIONS entries, and "not implemented" as first-class ATTACK_VECTORS detection — motivated by second self-audit on Arithmancy)
 > **Last reviewed:** 2026-05-13
 > **Why this status:** Living standard for project documentation. Refresh as conventions evolve.
 
@@ -113,6 +113,15 @@ Tier 3 documents are added when their trigger condition fires (see the Quick Dec
 - Project Lifecycle transitions — checklist items that reference exempt documents (e.g. "all `FEATURES.md` Must-priority entries Complete") are themselves exempt for that project; the DECISIONS entry recording the original exemption is sufficient.
 
 This variation also covers the recursive case where the standard is its own deliverable. See **Evolution of this standard** below.
+
+**Complete-state projects (handoff for revival).** When a project transitions to Complete, the `CLAUDE.md` document's role shifts from handoff-for-continuation to handoff-for-revival. The standard `CLAUDE.md` shape implicitly assumes Active state — fields for "Current state" (what's in progress), "Active task / next milestone" (what's being worked on now), "Out of scope" (what the AI should not change without asking). For Complete projects these sections still exist but their meanings shift, and one new section becomes load-bearing:
+
+- **Current state → Frozen state at completion.** Still file-level, but the verbs change from "in progress" / "stubbed" to "shipped" / "deferred" / "documented but not implemented." The intent is to describe what the project actually ships, not what it might one day become.
+- **Active task → Revival triggers.** The conditions under which a future session would legitimately re-open the project. Examples: a candidate result confirmed externally; hardware that the design targets becoming accessible; a citation or bug report requiring a response; a successor project incorporating this one's results. If revival happens for a reason not on this list, the trigger probably warrants its own DECISIONS entry before work resumes.
+- **Out of scope** carries extra weight, because a future session — yours or another agent's — will be tempted to mis-scope on revival. State explicitly what is settled and not to be re-litigated.
+- **New section: What to read first on revival.** Pointers into the highest-leverage documents for someone re-entering the project cold. Typically: the sealing DECISIONS entry (which records scope-delivered-vs-scope-planned); the CLAIMS.md status flags (which separate realised from aspirational pillars); any ATTACK_VECTORS entries with `Detection: not implemented` (failure modes the codebase doesn't yet guard against).
+
+The Complete-state `CLAUDE.md` is short — typically half the length of an Active-state one — because it is not orienting toward work but toward a decision to begin work. Its job is to make that decision honest and informed.
 
 **Rule of thumb:** if you find yourself writing code before `FEATURES.md` (or `CLAIMS.md`, for research) exists, stop. You're guessing at scope rather than defining it.
 
@@ -254,7 +263,7 @@ This is the project's ADR (Architecture Decision Record) log. When a critic tool
 # Decisions
 
 Append-only log of significant design decisions.
-Each entry: D-NNN, dated ISO 8601, with status, context, alternatives, decision, consequences, and reversal conditions.
+Each entry: D-NNN, with Decided and Recorded dates (ISO 8601; equal for normal entries, divergent for retroactive ones — see Date fields explained below), status, context, alternatives, decision, consequences, and reversal conditions.
 Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 ```
 
@@ -262,7 +271,8 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 
 ```markdown
 ### D-007 Fixed 120 Hz physics timestep
-**Date:** 2026-03-14
+**Decided:** 2026-03-14
+**Recorded:** 2026-03-14
 **Status:** Accepted
 **Authors:** Shane Hartley (with Crucible review 2026-03-15)
 **Related:** F-012, F-018, SPEC.md §Physics
@@ -283,6 +293,14 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 
 **Reversal conditions.** Revisit if (a) physics cost exceeds 30% of frame budget on minimum-spec hardware, or (b) replay determinism is no longer a requirement.
 ```
+
+**Date fields explained.** `Decided:` is when the choice was actually made; `Recorded:` is when this entry was written. For decisions made and recorded in the same session, both dates are the same. For **retroactive entries** (decisions made during earlier development and being captured later, e.g. during a retroactive completion pass — see §Project lifecycle), the two diverge:
+
+- If the original date is recoverable from a commit, issue, or other artifact, use it: `**Decided:** 2026-02-04 (from commit cca21cf)`.
+- If the original date is genuinely lost, omit `Decided:` and rely on `Recorded:` alone, optionally annotating: `**Decided:** not recorded — backfilled from V2.0.0-GOLD source state`.
+- Either field alone is acceptable when the other is unknown; both fields together provide stronger audit traceability when both are recoverable.
+
+The append-only rule applies to both fields. Neither is rewritten after the entry is sealed.
 
 **Maintenance rules:**
 
@@ -346,7 +364,12 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 1. **Stable IDs.** `AV-001`, `AV-002`, …, append-only. Referenced from tests, commits, and DECISIONS entries.
 2. **Co-authored when a critic tool is in use.** Crucible (or equivalent) suggests; the author adjudicates. Without such a tool, the author maintains it from review activity.
 3. **Cross-reference both directions.** ATTACK_VECTORS entries name the related DECISIONS and CLAIMS; those documents reference back. (See Maintenance Rules below for tooling.)
-4. **Detection is defined, not necessarily automated.** Every vector must state how it is checked — a test path, a tool invocation, or a manual / structural review procedure. The requirement is that *some* repeatable check exists; for documentation-style projects, the natural failure modes (drift, contradiction, staleness, cross-reference rot) often cannot be detected automatically and "manual review during quarterly audit" is a valid detection method. A vector without any defined detection is a worry, not a vector.
+4. **Detection is defined, not necessarily automated, not necessarily implemented.** Every vector must state how it is or would be checked. Acceptable values fall into three categories:
+   - **Implemented automated detection.** A test path, tool invocation, CI check, or other mechanical verification: `Detection: tests/test_gw_speed.py::test_gw170817_bound`.
+   - **Implemented manual detection.** A documented review procedure executed on a known cadence: `Detection: manual review during quarterly audit; checklist in TESTING.md §quarterly`.
+   - **Acknowledged-but-not-implemented detection.** The vector is real, but the project has not built or run the check that would detect it. Use the form `Detection: not implemented (would require X); see CLAIMS C-NNN.` This is especially common in Complete-state projects whose claimed verification machinery was never operationalised, and in early-Active projects where vectors are identified before detection tooling exists.
+
+The third option exists because an undetected vector is itself signal — the gap between the claim and its verification is information a reader needs. Recording "no detection" honestly is more useful than either omitting the vector or pretending a check exists. A vector with no defined detection at all (none of the three categories) is a worry, not a vector. When a vector moves from category three (not implemented) to category one or two (implemented), update the entry rather than creating a new one; the implementation event itself can be noted in the **History** field.
 
 ### `BUILD.md`
 
@@ -495,6 +518,20 @@ Projects don't only get created; they transition between states. The five Status
 - Final `DECISIONS.md` entry recording the succession and any lessons or assets carried over.
 - For research projects, `CLAIMS.md` entries should be ported to the successor (with new IDs) or formally retired with the reason recorded.
 
+### Retroactive completion
+
+Projects that finish development without having adopted this standard during their Active phase cannot tick the Active → Complete checklist cleanly — every checklist item references a document the standard would have built up over the project's life (`FEATURES.md` Must entries, `CLAIMS.md` status, the final `DECISIONS.md` sealing entry, `ROADMAP.md` phases marked Complete). For a late-adopting project, all four are vacuously unmet.
+
+This case is foreseeable enough to deserve explicit guidance. The minimum acceptable retroactive completion path is:
+
+1. **Add the README status header** with `Status: Complete`, `Last reviewed` set to today's date, and a `Why this status` line stating both the completion event (e.g. "V2.0.0 shipped 2026-05-13; no further development planned") and the maintenance posture (e.g. "bug fixes possible; no new features").
+2. **Create `DECISIONS.md` with a single sealing entry** that records: scope delivered vs scope originally planned (if a roadmap ever existed informally); any known divergences between existing docs and the as-shipped code; the maintenance posture; and a list of standard-prescribed documents being bulk-exempted with one-sentence reasons per document.
+3. **Apply the Future-revival friction test** (see **A note on cost** below) to the remaining standard documents. For Complete projects, the question shifts from "is this absence causing confusion now?" to "would this absence force the next revival to be archaeology rather than execution?" Mandatory: anything whose absence would block revival entirely (a working build recipe, a record of which version produced which result, a record of which claims are realised vs aspirational). Strongly recommended: anything whose absence would cost more than half a day on revival (design decision rationale, architectural map, known failure modes).
+
+If the project asserts performance numbers, integrity claims, or other empirically falsifiable statements in its README or commit history, **a CLAIMS audit pass is strongly recommended even as part of retroactive completion**. This is the single document whose absence does the most damage on revival, because the rationale for "what we know works vs what we hoped would work" is what evaporates first. Each lifted claim is recorded with its status flag (Supported / Proposed / Refuted / Withdrawn) and falsification condition.
+
+Retroactive completion is not a discount on the standard; it is a recognised path that produces a smaller but honest set of documents, with the omissions explicitly recorded rather than silent. A project that retroactively completes following this path is standard-compliant; a project that simply asserts `Status: Complete` without sealing is not.
+
 ### Why this matters
 
 A project that drifts to Dormant without documentation looks identical to an Active project from the outside — same files, same README claiming work in progress. When you return six months later, you can't reconstruct where you stopped or why. The transition discipline ensures the documents tell the truth about the project's state regardless of how long ago the last commit was.
@@ -601,7 +638,8 @@ Status vocabulary: Proposed | Supported | Refuted | Withdrawn.
 Append-only log. Status: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 
 ### D-001 {Decision title}
-**Date:** YYYY-MM-DD
+**Decided:** YYYY-MM-DD
+**Recorded:** YYYY-MM-DD
 **Status:** Accepted
 **Authors:** {author} (with {critic tool} review {date} if applicable)
 **Related:** F-NNN, C-NNN, AV-NNN
@@ -712,6 +750,18 @@ The Quick Decision Guide below leans towards adding documents because the absenc
 The same friction test applies to **Tier 1**, with one additional requirement: any Tier 1 omission must be recorded as a `DECISIONS.md` entry (see the Tier 1 table above). This keeps the discipline — Tier 1 omissions are principled exemptions with stated reasoning, not silent gaps. Examples: a documentation-only repo may legitimately exempt `FEATURES.md` and `ROADMAP.md` because the deliverable has no features or phases in the conventional sense; a solo-developer toy project may exempt `CLAUDE.md` if no AI-assisted sessions are planned. In each case the friction test is the operational threshold, and the DECISIONS entry is the audit trail.
 
 The operational test is **friction**: are you currently or recently confused about something the absent doc would have answered? If yes, add it. If no, the absence isn't costing you anything yet. Adding documents pre-emptively against confusion that never arrives is itself a form of waste.
+
+**Future-revival friction test (Complete-state mode).** For projects transitioning to Complete, the present-tense friction test fires for nothing — no one is currently developing, so no one is currently confused. But Complete is precisely the state in which future-revival cost matters most, because the project is about to enter a long quiet period during which context evaporates. For Complete projects (and retroactive completion in particular — see **Retroactive completion** above), replace the present-tense friction test with a forward-tense variant:
+
+> *If you (or a successor) returned to this project in 6–18 months — because of a candidate result, a hardware change, a citation request, or a bug report — which absent document would force the revival to be archaeology rather than execution?*
+
+Threshold tiers for the forward-tense test:
+
+- **Mandatory:** any document whose absence would prevent revival from happening at all. A broken build recipe, no record of which version produced which result, no record of which performance / correctness claims were realised vs aspirational.
+- **Strongly recommended:** any document whose absence would cost more than half a day of revival time. Design decision rationale, an architectural map, the list of known failure modes.
+- **Case-by-case:** documents that only marginally accelerate revival.
+
+The forward-tense test is not a relaxation of the standard for Complete projects — it is the same friction test applied to a different temporal horizon. Adopting it makes the Complete-state cost analysis honest about the structural difference (friction is predicted, not experienced).
 
 The Tier 1 set is the default minimum below which projects reliably suffer; exemptions are narrow and documented. Tier 2 and Tier 3 are case-by-case.
 

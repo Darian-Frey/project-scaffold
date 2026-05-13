@@ -17,14 +17,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `D-004` recording the five-edit package of standard revisions following the first self-audit.
 - `D-005` recording the Tier 1 exemption for `FEATURES.md` (this repo's deliverable is a standard, not a tool with capabilities).
 - `D-006` recording the Tier 1 exemption for `ROADMAP.md` (the standard is revised inline, not in phases).
+- `D-007` recording the five-revision package of standard changes following the second self-audit (Arithmancy).
 - Documentation-as-deliverable Workflow Variation in the standard, covering the meta-level case where the project's deliverable is documentation itself. Spells out which Tier 1 documents adapt and which are legitimate exemptions.
 - Recursive-application paragraph in the standard's Evolution section, explicitly stating that the host repo follows the standard with documented exemptions.
 - Project-specific-extensions clause in the Evolution section, listing reserved names and the conditions under which projects may add document types beyond those the standard names.
+- **Retroactive completion** subsection in the standard's §Project lifecycle, specifying the minimum acceptable path for projects that finish development without having adopted the standard during Active phase. Status header update + sealing DECISIONS entry + optional CLAIMS audit pass.
+- **Future-revival friction test** in §A note on cost — forward-tense variant of the friction test triggered by Complete-state transitions, with mandatory / strongly-recommended / case-by-case threshold tiers.
+- **Complete-state projects** Workflow Variation in §Creation Order, alongside AI-first, Research-driven, and Documentation-as-deliverable. Specifies the Complete-state shape of `CLAUDE.md` (Frozen state / Revival triggers / Out of scope / What to read first on revival).
 
 ### Changed
 - **Tier 1 framing reconciled with the cost note.** Header changed from "Tier 1 — Always (every project, no exceptions)" to "Tier 1 — Default minimum (every project, with narrow documented exemptions)." Body text now requires Tier 1 omissions to be recorded as `DECISIONS.md` entries with reasoning. The cost note section was extended to explicitly cover Tier 1 with the same friction test plus the documented-exemption requirement. Fixes the internal contradiction identified by the first self-audit (2026-05-13).
-- ATTACK_VECTORS Maintenance Rule 4 softened from "Detection is not optional" to "Detection is defined, not necessarily automated." Manual / structural review is now explicitly named as a valid detection method, matching the spec's existing examples. Documentation-style projects benefit most; the rule's intent (no undefined detection) is preserved.
-- Standard's Provenance log appended with the 2026-05-13 revision entry; Last reviewed refreshed to 2026-05-13.
+- **ATTACK_VECTORS Maintenance Rule 4** extended. Initially softened from "Detection is not optional" to "Detection is defined, not necessarily automated" (first audit). Now further extended to three first-class detection categories: implemented automated, implemented manual, and acknowledged-but-not-implemented (`Detection: not implemented (would require X); see CLAIMS C-NNN`). An undetected vector is itself signal for Complete-state projects whose claimed verification was never operationalised.
+- **DECISIONS entry format: `Date:` replaced with `Decided:` and `Recorded:` fields.** For normal entries both are identical; for retroactive entries (e.g. during retroactive completion) they diverge. Either field alone is acceptable when the other is unknown. The convention is added to the entry-format example, file-header description, and `skeletons/DECISIONS.skeleton.md`. The six existing entries in this repo's `DECISIONS.md` migrated to the new format.
+- Standard's Provenance log appended with two 2026-05-13 revision entries (one per self-audit); Last reviewed remains 2026-05-13.
 
 ## [0.1.0] — 2026-05-13
 
