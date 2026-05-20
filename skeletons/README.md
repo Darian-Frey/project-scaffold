@@ -33,6 +33,8 @@ Then add Tier 2 and Tier 3 skeletons as the project warrants — see the **Quick
 | `CLAUDE.skeleton.md` | 1 | Every project using AI-assisted development. |
 | `CHANGELOG.skeleton.md` | 1 | Every project. |
 | `DECISIONS.skeleton.md` | 2 | Most non-trivial projects — add from day one if you expect more than one or two significant design choices. |
+| `BUGS.skeleton.md` | 2 | Projects that want bug history in-repo rather than (or alongside) an external tracker. Especially valuable for solo-dev and AI-partner workflows. |
+| `IMPROVEMENTS.skeleton.md` | 2 | Projects that want a tracked list of candidate refactors and code-quality improvements distinct from features and decisions. Pairs with `BUGS.md` under Maintenance Rule 8. |
 | `CLAIMS.skeleton.md` | 3 | Research projects making empirical, theoretical, or mathematical assertions. |
 | `ATTACK_VECTORS.skeleton.md` | 3 | Projects with well-defined failure modes worth enumerating. |
 

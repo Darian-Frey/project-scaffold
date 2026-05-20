@@ -18,6 +18,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `D-005` recording the Tier 1 exemption for `FEATURES.md` (this repo's deliverable is a standard, not a tool with capabilities).
 - `D-006` recording the Tier 1 exemption for `ROADMAP.md` (the standard is revised inline, not in phases).
 - `D-007` recording the five-revision package of standard changes following the second self-audit (Arithmancy).
+- `D-008` recording the addition of `BUGS.md` as a Tier 2 document type with `BUG-NNN` stable IDs and status vocabulary (open / fixed / wontfix / deferred). Format adopted from `tux-ti83`'s in-repo bug catalogue.
+- `D-009` recording the addition of `IMPROVEMENTS.md` as a Tier 2 document type with `IMP-NNN` stable IDs and status vocabulary (suggested / applied / declined / deferred). The dual of BUGS.md; trade-offs are required per entry.
+- `D-010` recording new Maintenance Rule 8 — "Log when found, not silently acted on" — the workflow discipline that makes BUGS.md and IMPROVEMENTS.md useful catalogues.
+- **`BUGS.md` as a Tier 2 document type** in the standard, with per-document specification, file header, entry format, four maintenance rules, and worked example (BUG-019 from tux-ti83). New entry in §SDLC mapping, §Tier 2 table, §Quick Decision Guide, and reserved-names list.
+- **`IMPROVEMENTS.md` as a Tier 2 document type** in the standard, with per-document specification, file header, entry format, four maintenance rules, and worked example (IMP-021 from tux-ti83). Trade-offs required per entry. New entry in §SDLC mapping, §Tier 2 table, §Quick Decision Guide, and reserved-names list.
+- **Maintenance Rule 8 ("Log when found, not silently acted on")** added to §Maintenance Rules. Behavioral commitment for AI partners and human contributors when working in a project that has BUGS or IMPROVEMENTS files: log discoveries rather than silently fix or apply them; the user decides whether to act, defer, or decline.
+- `skeletons/BUGS.skeleton.md` and `skeletons/IMPROVEMENTS.skeleton.md` — copy-paste-ready starter files matching the new per-document specs. Mirror the standard's §Minimal File Skeletons section.
+- `audits/` directory with `2026-05-13-self-audit.md`, the diagnostic record of the first self-audit run against this repo. Kept as a dated snapshot; future audits land in the same directory with their own YYYY-MM-DD prefix.
 - Documentation-as-deliverable Workflow Variation in the standard, covering the meta-level case where the project's deliverable is documentation itself. Spells out which Tier 1 documents adapt and which are legitimate exemptions.
 - Recursive-application paragraph in the standard's Evolution section, explicitly stating that the host repo follows the standard with documented exemptions.
 - Project-specific-extensions clause in the Evolution section, listing reserved names and the conditions under which projects may add document types beyond those the standard names.
@@ -29,7 +37,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Tier 1 framing reconciled with the cost note.** Header changed from "Tier 1 — Always (every project, no exceptions)" to "Tier 1 — Default minimum (every project, with narrow documented exemptions)." Body text now requires Tier 1 omissions to be recorded as `DECISIONS.md` entries with reasoning. The cost note section was extended to explicitly cover Tier 1 with the same friction test plus the documented-exemption requirement. Fixes the internal contradiction identified by the first self-audit (2026-05-13).
 - **ATTACK_VECTORS Maintenance Rule 4** extended. Initially softened from "Detection is not optional" to "Detection is defined, not necessarily automated" (first audit). Now further extended to three first-class detection categories: implemented automated, implemented manual, and acknowledged-but-not-implemented (`Detection: not implemented (would require X); see CLAIMS C-NNN`). An undetected vector is itself signal for Complete-state projects whose claimed verification was never operationalised.
 - **DECISIONS entry format: `Date:` replaced with `Decided:` and `Recorded:` fields.** For normal entries both are identical; for retroactive entries (e.g. during retroactive completion) they diverge. Either field alone is acceptable when the other is unknown. The convention is added to the entry-format example, file-header description, and `skeletons/DECISIONS.skeleton.md`. The six existing entries in this repo's `DECISIONS.md` migrated to the new format.
-- Standard's Provenance log appended with two 2026-05-13 revision entries (one per self-audit); Last reviewed remains 2026-05-13.
+- **Append-only IDs rule (Maintenance Rule 3) extended** to cover `BUG-` and `IMP-` namespaces alongside the existing `F-`, `C-`, `D-`, `AV-`.
+- **CHANGELOG per-document spec extended** to reference `BUG-` and `IMP-` IDs in examples and the traceability list ("Reference F-, C-, D-, AV-, BUG-, and IMP- IDs for full traceability").
+- **§SDLC mapping** gains two rows: "What went wrong (realised)?" → `BUGS.md`; "What could be better (candidate)?" → `IMPROVEMENTS.md`.
+- **§Critical separations** gains two new pairings: ATTACK_VECTORS (anticipated) vs BUGS (realised); BUGS (broken) vs IMPROVEMENTS (works but could be better).
+- **Skeletons index (`skeletons/README.md`) extended** with rows for BUGS.skeleton.md and IMPROVEMENTS.skeleton.md.
+- **Repo `CLAUDE.md` updated** to reflect new DECISIONS entries (D-004 through D-010), the new skeleton count (10), the new `audits/` directory, the explicit Tier 2 absence reasoning for BUGS/IMPROVEMENTS, and the Maintenance Rule 8 note (moot here because neither doc exists).
+- Standard's Provenance log appended with three revision entries: two 2026-05-13 (self-audit one and Arithmancy audit two) and one 2026-05-21 (BUGS/IMPROVEMENTS adoption); Last reviewed updated from 2026-05-13 to 2026-05-21.
 
 ## [0.1.0] — 2026-05-13
 

@@ -282,3 +282,141 @@ The Arithmancy-specific recommendations are Shane's responsibility to action in 
 - The Decided/Recorded date convention causes confusion in practice (people unsure which to fill, or both repeatedly identical making the second field feel ceremonial). Response: simplify back to a single `Date:` field with annotations for retroactive cases, accepting the audit-traceability loss.
 - A third self-audit (or external user report) finds that the Complete-state `CLAUDE.md` variant is still under-specified for some workflow we haven't anticipated. Response: extend the variant rather than reverse it.
 - The "not implemented" detection option leads to projects shipping with many such entries and never operationalising the detection. Response: add a maintenance rule that "Detection: not implemented" entries trigger periodic review and either implementation or downgrade to "Withdrawn." This would be an additive rule, not a reversal.
+
+---
+
+### D-008 Add `BUGS.md` as a Tier 2 document type
+
+**Decided:** 2026-05-21
+**Recorded:** 2026-05-21
+**Status:** Accepted
+**Authors:** Shane Hartley; Claude (review session)
+**Related:** D-010 (the workflow rule that makes BUGS.md load-bearing); the standard's §Per-Document Specifications and `skeletons/BUGS.skeleton.md`
+
+**Context.** Working on `tux-ti83` (a TI-83 calculator emulator) over several months, Shane developed a `BUGS.md` file with stable IDs (`BUG-NNN`), a fixed status vocabulary (open / fixed / wontfix / deferred), and a strict workflow rule: bugs are logged when found, not silently fixed; the user decides whether to fix immediately, defer, or leave alone. The format proved useful enough — across multiple sessions, multiple AI-assisted reviews, and one user-visible regression caught only because a prior bug entry made the failure mode legible — that it should be promoted from a one-project pattern to a standard-prescribed document type. The standard already has `ATTACK_VECTORS.md` for *anticipated* failure modes with detection methods (forward-looking) but no slot for *realised* failures with status (backward-looking). The two are complementary, not redundant.
+
+**Options.**
+
+- **A. Treat bugs as a subset of `ATTACK_VECTORS.md` entries.** Rejected: ATTACK_VECTORS demands a detection method per entry and is structured as a checklist of properties the system must hold. Bugs are historical incidents — they have status, reproduction steps, and a fix path. Conflating the two would dilute both and make ATTACK_VECTORS less useful as a forward-looking gate.
+
+- **B. Delegate to GitHub Issues / Jira / Linear without prescribing a `BUGS.md`.** Rejected: external trackers are the right call for many teams, but (a) solo-dev and AI-partner workflows benefit from a single in-repo file an AI agent can read without API access, (b) in-repo bug history survives forge migrations and external-service deprecation, (c) the discipline-rule ("log when found, not silently fixed" — see D-010) is harder to enforce when the bug catalogue lives outside the repo. The standard should support both — `BUGS.md` for in-repo workflows, external trackers when projects prefer them. Tier 2 placement (strongly recommended, not mandatory) reflects this.
+
+- **C. Add `BUGS.md` to Tier 2 with `BUG-NNN` stable IDs, status vocabulary (open / fixed / wontfix / deferred), the entry format from `tux-ti83`, and the workflow rule (recorded separately as D-010).** Chosen.
+
+**Decision.** Option C. The standard prescribes `BUGS.md` as a Tier 2 document for projects that want their bug catalogue in-repo. The format mirrors `tux-ti83`'s `BUGS.md`:
+
+- **Stable IDs.** `BUG-001`, `BUG-002`, …, append-only. Referenced from commits, CHANGELOG entries, ATTACK_VECTORS (when a recurring bug pattern warrants a new vector), and DECISIONS (when a bug fix is significant enough to be a decision).
+- **Status vocabulary.** open | fixed | wontfix | deferred. Fixed values; tooling and AI partners parse them mechanically.
+- **Entry fields.** Status; Found (YYYY-MM-DD with session/commit context); Location (path:line); Severity (low | medium | high); Description; Reproduction (when known); Notes (related context, suggested fix, links).
+- **File organisation.** Sections by status (Open / Fixed / Won't Fix / Deferred). Each entry sits under the section matching its current status; the entry's `Status:` field is the source of truth.
+- **Relationship to ATTACK_VECTORS.** ATTACK_VECTORS lists what *could* go wrong with detection methods (forward-looking checklist); BUGS lists what *did* go wrong with status flags (backward-looking incident log). A recurring bug pattern may warrant a new ATTACK_VECTORS entry; an ATTACK_VECTORS hit that escaped detection in production becomes a BUG entry. Cross-references are bidirectional.
+
+The "log when found, not silently fixed" discipline that makes BUGS.md valuable is recorded as a separate Maintenance Rule (see D-010) rather than baked into this document's per-doc spec, because the rule applies equally to IMPROVEMENTS.md (D-009) and is behavioral guidance for AI partners and humans rather than document content.
+
+**Consequences.**
+
+- Projects gain a standard-prescribed in-repo bug catalogue. `BUG-NNN` becomes the fifth stable-ID namespace alongside `F-`, `C-`, `D-`, `AV-`.
+- `BUGS.md` joins `BUGS` on the reserved-names list in the Evolution section's project-specific-extensions clause.
+- CHANGELOG's `### Fixed` section now references `BUG-NNN` IDs naturally alongside the existing `AV-NNN` pattern, giving traceability for what was fixed and when.
+- The Quick Decision Guide gains a new entry pointing at BUGS.md ("Are you tracking discovered bugs in-repo rather than in an external tracker?").
+- Tier 2 (not Tier 1) placement means projects using GitHub Issues or another tracker are not violating the standard by omitting BUGS.md. The friction test applies: if the in-repo catalogue would be a burden duplicating an external one, skip it.
+- A new skeleton (`skeletons/BUGS.skeleton.md`) is added so adopters can copy-paste-fill.
+- This repo does not currently have a `BUGS.md`. Per the Tier 2 friction-test override, no DECISIONS entry is required for the omission; the absence is recorded by inference (no friction signal has fired) and revisited if drift becomes visible.
+
+**Reversal conditions.** Revisit if any of the following hold:
+
+- Users report that maintaining `BUGS.md` alongside GitHub Issues / Jira / equivalent is redundant friction with no compensating benefit. Response: move BUGS.md to Tier 3 with an explicit "only when no external tracker is in use" trigger, rather than Tier 2's broad "strongly recommended."
+- The BUG-/AV- distinction proves consistently confusing in practice — users repeatedly file entries in the wrong document or duplicate them across both. Response: clarify the boundary in both per-document specs with worked examples, or, if the conflation is genuine, merge them into a single document with two entry types.
+- The four-value status vocabulary proves insufficient (e.g. a "needs-info" or "blocked-on-external" state recurs across projects). Response: extend the vocabulary in a new revision; existing entries are not invalidated because the values are additive.
+
+---
+
+### D-009 Add `IMPROVEMENTS.md` as a Tier 2 document type
+
+**Decided:** 2026-05-21
+**Recorded:** 2026-05-21
+**Status:** Accepted
+**Authors:** Shane Hartley; Claude (review session)
+**Related:** D-008 (parallel document for realised bugs); D-010 (the workflow rule that makes both BUGS and IMPROVEMENTS load-bearing); the standard's §Per-Document Specifications and `skeletons/IMPROVEMENTS.skeleton.md`
+
+**Context.** The same `tux-ti83` development that produced `BUGS.md` (see D-008) also produced an `IMPROVEMENTS.md` — the dual catalogue, recording proposed refactors, architectural changes, and code-quality wins (stable IDs `IMP-NNN`, status vocabulary suggested / applied / declined / deferred, the same "log when noticed, not silently applied" discipline). The format proved useful because it occupies a niche neither `FEATURES.md` nor `DECISIONS.md` covers cleanly: a candidate `IMP-NNN` is not yet a committed capability (so it doesn't belong in FEATURES), and it is not yet a decided choice between alternatives (so it doesn't belong in DECISIONS). It's a tracked suggestion — visible to the maintainer, available for the user to act on or decline, surviving session boundaries.
+
+Several `BUG-NNN` entries in `tux-ti83`'s BUGS.md reference `IMP-NNN` improvements ("structural cleanup logged as IMP-001"), confirming the documents are paired in practice.
+
+**Options.**
+
+- **A. Treat improvements as candidate features in `FEATURES.md`'s "Candidate features (uncommitted)" section.** Rejected: candidate features are uncommitted *user-facing capabilities*; improvements are uncommitted *internal changes* (refactors, performance tweaks, dead-code removal, architectural cleanups). Conflating them either dilutes FEATURES (mixing user-visible and internal scope) or strands real internal-quality items because they don't read as "features." The orthogonal-axes argument that motivates `FEATURES.md` / `CLAIMS.md` separation applies here too: features are user-facing commitments, improvements are maintainer-facing candidates.
+
+- **B. Treat improvements as proposed-status `DECISIONS.md` entries.** Rejected: DECISIONS entries record a *choice between alternatives* with reversal conditions. An improvement candidate is at an earlier stage — the question isn't "which alternative?" but "is this worth doing at all?" Forcing every improvement candidate through DECISIONS would either inflate the decision log with non-decisions or pressure authors to skip the candidate stage entirely.
+
+- **C. Add `IMPROVEMENTS.md` to Tier 2 with `IMP-NNN` stable IDs, status vocabulary (suggested / applied / declined / deferred), the entry format from `tux-ti83`, and the same workflow rule as BUGS (D-010).** Chosen.
+
+**Decision.** Option C. The standard prescribes `IMPROVEMENTS.md` as a Tier 2 document for projects that want a tracked, persistent list of candidate refactors and improvements. The format mirrors `tux-ti83`'s `IMPROVEMENTS.md`:
+
+- **Stable IDs.** `IMP-001`, `IMP-002`, …, append-only. Referenced from commits, CHANGELOG (when applied), BUGS (when a bug fix surfaces an improvement candidate or vice versa), and DECISIONS (when a decision is needed before applying).
+- **Status vocabulary.** suggested | applied | declined | deferred.
+- **Entry fields.** Status; Found (YYYY-MM-DD with session/commit context); Location (path:line or "cross-cutting"); Effort (trivial | small | medium | large); Description (what could be improved and why); Proposal (how to do it); Trade-offs (what we'd give up or risk); Notes (related context, dependencies on other work).
+- **File organisation.** Sections by status (Suggested / Applied / Declined / Deferred), same pattern as BUGS.
+- **Trade-offs are not optional.** An entry without `Trade-offs:` is a feature request, not an improvement candidate. The trade-off field is what makes the entry useful for later adjudication — without it, the entry can't be evaluated when revisited.
+- **Relationship to BUGS.** Bugs are things that are *broken*; improvements are things that *work but could be better*. The distinction is sharp enough to file an entry in exactly one document. When a bug fix surfaces an improvement candidate, the BUG entry references the IMP and vice versa.
+- **Relationship to FEATURES.md.** Features are user-facing committed capabilities (with acceptance criteria); improvements are internal-facing candidate changes (with trade-offs). Applied improvements may motivate updates to FEATURES if user-visible behavior shifts; pure-internal improvements don't.
+
+The same workflow rule (D-010) governs IMPROVEMENTS as BUGS: log when noticed, not silently apply; the author decides whether to act, defer, or decline.
+
+**Consequences.**
+
+- Projects gain a standard-prescribed in-repo improvement catalogue. `IMP-NNN` becomes the sixth stable-ID namespace alongside `F-`, `C-`, `D-`, `AV-`, `BUG-`.
+- `IMPROVEMENTS.md` joins the reserved-names list.
+- CHANGELOG's `### Changed` section references `IMP-NNN` IDs naturally when improvements land.
+- Tier 2 placement matches BUGS — strongly recommended for projects that benefit from in-repo tracking; legitimately exempt for projects using external trackers or for projects too small to need the discipline.
+- A new skeleton (`skeletons/IMPROVEMENTS.skeleton.md`) is added.
+- This repo does not currently have an `IMPROVEMENTS.md`. Same friction-test reasoning as D-008 for the absence: no IMP candidates currently in flight; revisit if drift becomes visible.
+
+**Reversal conditions.** Revisit if any of the following hold:
+
+- Improvements consistently get filed in `DECISIONS.md` or `FEATURES.md` instead, with users reporting that IMPROVEMENTS.md duplicates one of those. Response: clarify the per-document distinctions with worked examples, or, if the conflation is genuine, retire IMPROVEMENTS into one of the other documents.
+- The four-value status vocabulary proves insufficient (e.g. an "in-progress" state recurs because applied improvements take multiple sessions). Response: extend additively.
+- The Effort field becomes either ceremonial (everything filed as "medium") or contentious (estimates routinely wrong by an order of magnitude). Response: drop the field, or replace it with a coarser "small / large" binary. Existing entries are not invalidated.
+
+---
+
+### D-010 Maintenance Rule 8 — "Log when found, not silently acted on"
+
+**Decided:** 2026-05-21
+**Recorded:** 2026-05-21
+**Status:** Accepted
+**Authors:** Shane Hartley; Claude (review session)
+**Related:** D-008 (BUGS.md); D-009 (IMPROVEMENTS.md); the standard's §Maintenance Rules
+
+**Context.** Both `BUGS.md` (D-008) and `IMPROVEMENTS.md` (D-009) only earn their value if they're maintained with a specific discipline: bugs and improvement candidates discovered during work on something else are *logged*, not silently fixed or applied inline. Without this rule, the catalogues decay — entries get filed late, post-hoc, or not at all; in-flight scope creeps silently as an AI partner or human "helpfully" patches a discovery rather than logging it. The catalogue's value is its completeness; the rule is what produces completeness.
+
+This is especially load-bearing for AI-partner workflows. AI partners default to acting on discoveries — given an instruction to refactor function A, an AI agent that notices a latent bug in function B will frequently just fix B too, with a sentence in the commit message. The fix may be correct, but it bundles two changes into one and bypasses the user's decision on whether to defer, decline, or fix immediately. For human contributors the same drift happens more slowly but with the same effect: a six-month-old codebase has dozens of opportunistic fixes the original session never tracked.
+
+The rule applies whenever BUGS.md or IMPROVEMENTS.md exists in a project. Where neither exists, the rule is moot.
+
+**Options.**
+
+- **A. Embed the rule in BUGS.md and IMPROVEMENTS.md per-document specs only, without a top-level Maintenance Rule.** Rejected: the rule is behavioral guidance for AI partners and human contributors, not document content. The standard's existing Maintenance Rules ("Docs are part of the commit," "CLAUDE.md is current state, not history") are also behavioral; this rule belongs in the same family. Embedding it only in per-doc specs underweights it.
+
+- **B. Add as Maintenance Rule 8 at the top level, with cross-references from BUGS.md and IMPROVEMENTS.md per-doc specs.** Chosen.
+
+**Decision.** Option B. Add Maintenance Rule 8 to the standard's §Maintenance Rules section:
+
+> **Log when found, not silently acted on.** When a bug is discovered or an improvement candidate is noticed during work on something else, log it in `BUGS.md` / `IMPROVEMENTS.md` rather than fix or apply it inline. The author (or, for AI-partner workflows, the user) decides whether to act immediately, defer, or decline. This rule is what makes BUGS and IMPROVEMENTS useful catalogues: their value is completeness, and completeness requires that in-flight discoveries are recorded before they evaporate into commit-message footnotes.
+>
+> Applies only when BUGS.md and/or IMPROVEMENTS.md exist in the project. Where neither exists, the rule is moot.
+
+The BUGS.md and IMPROVEMENTS.md per-document specs reference this rule rather than restating it, keeping the source of truth in the Maintenance Rules section.
+
+**Consequences.**
+
+- AI partners reading `CLAUDE.md` and the standard now have an explicit behavioral commitment: do not silently fix bugs or apply improvements when working on something else. Log them; let the user decide.
+- The rule formalises the existing `tux-ti83` workflow practice as a standard-level commitment, applicable to any project adopting BUGS or IMPROVEMENTS.
+- Maintenance Rule 8 joins the existing seven; the numbering remains stable (rule 8 is additive, not a reordering).
+- The rule introduces a small ritual cost — every in-flight discovery becomes a log entry rather than a silent fix. For trivial fixes (typo in a comment) this can feel like overhead; the spec language frames it as a default with judgement-call exceptions ("the user decides").
+
+**Reversal conditions.** Revisit if any of the following hold:
+
+- The log-cost becomes burdensome in practice — entries proliferate with no action ever taken, the user spends more time triaging the catalogue than the catalogue's existence saved them in scope-creep prevention. Response: relax the rule for trivial-severity entries, or downgrade it from a Maintenance Rule to a per-document recommendation in BUGS / IMPROVEMENTS specs.
+- AI partners systematically misinterpret the rule and over-log (every minor decision becomes a BUG or IMP entry, polluting the catalogues with non-issues). Response: tighten the rule's language with explicit "what counts as a discovery" criteria, or add per-document severity thresholds below which logging is optional.
+- A documented case emerges where the rule produced the wrong outcome — e.g. an AI partner logged a critical bug as `Status: open` mid-session when fixing it inline would have prevented a downstream failure in the same session. Response: add explicit guidance that critical-severity bugs may be fixed inline provided they are still logged after-the-fact, with the fix referenced.

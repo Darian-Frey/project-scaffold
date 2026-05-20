@@ -1,6 +1,6 @@
 > **Status:** Active
-> **Provenance:** Claude (initial 2026-05-07; revised 2026-05-12 adding DECISIONS.md, ATTACK_VECTORS.md, CLAIMS.md formalisation, project lifecycle, tooling integration, cost framing; revised 2026-05-12 tightening tooling integration, harmonising Authors/Provenance distinction, marking tooling references as illustrative, adding standard self-evolution rule; revised 2026-05-13 reconciling Tier 1 framing with the cost note's friction test, adding Documentation-as-deliverable Workflow Variation, softening ATTACK_VECTORS detection rule, adding recursive-application and project-specific-extensions clauses to Evolution section — motivated by first self-audit of host repo; revised 2026-05-13 adding Retroactive completion path, Future-revival friction test, Complete-state CLAUDE.md Workflow Variation, Decided/Recorded date fields for DECISIONS entries, and "not implemented" as first-class ATTACK_VECTORS detection — motivated by second self-audit on Arithmancy)
-> **Last reviewed:** 2026-05-13
+> **Provenance:** Claude (initial 2026-05-07; revised 2026-05-12 adding DECISIONS.md, ATTACK_VECTORS.md, CLAIMS.md formalisation, project lifecycle, tooling integration, cost framing; revised 2026-05-12 tightening tooling integration, harmonising Authors/Provenance distinction, marking tooling references as illustrative, adding standard self-evolution rule; revised 2026-05-13 reconciling Tier 1 framing with the cost note's friction test, adding Documentation-as-deliverable Workflow Variation, softening ATTACK_VECTORS detection rule, adding recursive-application and project-specific-extensions clauses to Evolution section — motivated by first self-audit of host repo; revised 2026-05-13 adding Retroactive completion path, Future-revival friction test, Complete-state CLAUDE.md Workflow Variation, Decided/Recorded date fields for DECISIONS entries, and "not implemented" as first-class ATTACK_VECTORS detection — motivated by second self-audit on Arithmancy; revised 2026-05-21 adding BUGS.md and IMPROVEMENTS.md as Tier 2 document types with BUG-/IMP- stable IDs, Maintenance Rule 8 "Log when found, not silently acted on", and corresponding skeletons — motivated by adoption of tux-ti83's in-repo bug and improvement tracking pattern)
+> **Last reviewed:** 2026-05-21
 > **Why this status:** Living standard for project documentation. Refresh as conventions evolve.
 
 # Development Documentation Standard
@@ -27,6 +27,8 @@ Industry-standard SDLC phases (planning → requirements → design → implemen
 | **Why** were the structural choices made? | ADR log | `DECISIONS.md` |
 | **How** does it work (technical detail)? | SRS / TSD | `SPEC.md` (or domain-named) |
 | **How** could it break? | Threat model / failure-mode list | `ATTACK_VECTORS.md` |
+| **What went wrong (realised)?** | Bug tracker | `BUGS.md` |
+| **What could be better (candidate)?** | Tech-debt / refactor backlog | `IMPROVEMENTS.md` |
 | **How** do I build it? | Build/Deploy Guide | `BUILD.md` |
 | **What changed and when?** | Release notes | `CHANGELOG.md` |
 | **How does an AI pick this up?** | (No industry equivalent) | `CLAUDE.md` |
@@ -37,6 +39,8 @@ The critical separations:
 - **Features (what)** vs **Spec (how)** — features are user-facing capabilities; spec is internal implementation detail.
 - **Architecture (structure)** vs **Decisions (rationale)** — ARCHITECTURE describes the system as it is; DECISIONS records why it ended up that way and what alternatives were rejected.
 - **Spec (correctness contract)** vs **Attack Vectors (failure modes)** — SPEC says what the system does when working; ATTACK_VECTORS lists how it can fail.
+- **Attack Vectors (anticipated failures)** vs **Bugs (realised failures)** — ATTACK_VECTORS is a forward-looking checklist of what the project must guard against, with detection methods; BUGS is the backward-looking log of what actually went wrong, with status flags. A recurring BUGS pattern may warrant a new ATTACK_VECTORS entry; an ATTACK_VECTORS entry that escaped detection in production becomes a BUG.
+- **Bugs (broken)** vs **Improvements (works but could be better)** — BUGS catalogues realised defects; IMPROVEMENTS catalogues candidate refactors, performance tweaks, and architectural cleanups that aren't user-facing committed capabilities (FEATURES) and aren't decisions between alternatives (DECISIONS).
 
 ---
 
@@ -63,6 +67,8 @@ Tier 1 is the default minimum below which projects reliably suffer. Legitimate e
 | `DECISIONS.md` | Indexed log of design decisions with rationale and reversal conditions. | Design (continuous) |
 | `SPEC.md` (or domain-named, e.g. `PHYSICS.md`, `PROTOCOL.md`) | Authoritative technical specification. | Design |
 | `BUILD.md` | Environment setup, toolchain versions, build commands. | Implementation |
+| `BUGS.md` | Catalogue of discovered bugs with status (open / fixed / wontfix / deferred). Backward-looking incident log; complements `ATTACK_VECTORS.md`'s forward-looking checklist. | Implementation (continuous) |
+| `IMPROVEMENTS.md` | Catalogue of candidate refactors and code-quality changes (suggested / applied / declined / deferred). Tracks "works but could be better" items distinct from bugs and features. | Implementation (continuous) |
 
 ### Tier 3 — Conditional (use when applicable)
 
@@ -371,6 +377,97 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 
 The third option exists because an undetected vector is itself signal — the gap between the claim and its verification is information a reader needs. Recording "no detection" honestly is more useful than either omitting the vector or pretending a check exists. A vector with no defined detection at all (none of the three categories) is a worry, not a vector. When a vector moves from category three (not implemented) to category one or two (implemented), update the entry rather than creating a new one; the implementation event itself can be noted in the **History** field.
 
+### `BUGS.md`
+
+The catalogue of bugs discovered during development. Backward-looking incident log; the dual of `ATTACK_VECTORS.md` (forward-looking checklist of anticipated failure modes with detection methods).
+
+The document is most valuable in workflows where the bug history should live in-repo rather than in an external tracker — solo development, AI-partner sessions, projects that need bug history to survive forge migrations, and projects where the discipline-rule below is hard to enforce across an out-of-repo tool. Projects using GitHub Issues, Jira, Linear, or equivalent may legitimately exempt `BUGS.md` per the Tier 2 friction test in §A note on cost.
+
+**File header:**
+
+```markdown
+# Bugs
+
+Catalogue of bugs discovered during development. Per the project workflow,
+bugs are **logged here when found, not silently fixed** (see Maintenance
+Rule 8). The author decides whether to fix immediately, defer, or leave
+alone.
+
+Status vocabulary: open | fixed | wontfix | deferred.
+Severity vocabulary: low | medium | high.
+```
+
+**Entry format:**
+
+```markdown
+### BUG-019: Bare `.` in the buffer crashes the engine via uncaught `std::stod` exception
+**Status:** fixed (2026-04-18, same session as IMP-021)
+**Location:** [core_math/src/core_math.cpp](core_math/src/core_math.cpp) `evaluate()` digit-flush lambda
+**Severity:** high (process crash, not just an error)
+**Description.** Pre-existing latent crash. The digit-coalescing pass collected `Token::Decimal` characters and called `std::stod` on flush. For a bare `.`, `std::stod` throws `std::invalid_argument`, which propagated up uncaught and aborted the process via `terminate()`.
+**Reproduction.** `./build/tux_ti83_cli '.'` aborts with `std::invalid_argument: stod`.
+**Notes.** Wrapped the `std::stod` call in `try/catch`, set a `parseFailed` flag, return `ERR:SYNTAX` from `evaluate()` if any parse failed. Bare `.` now produces `ERR:SYNTAX` (matching TI-83 behaviour) instead of crashing.
+```
+
+**Required fields per entry.** Status; Found (the entry's discovery date in YYYY-MM-DD, with session/commit context if useful); Location (file path with line number if available, or "cross-cutting" for project-wide bugs); Severity; Description (what's wrong, and why it matters); Reproduction (when known — minimum steps to trigger); Notes (related context, suggested fix, links to BUGS/IMPROVEMENTS/DECISIONS/ATTACK_VECTORS entries).
+
+The `Status:` line carries the bug's lifecycle. When status changes from `open` → `fixed`, append the fix date in parentheses (`fixed (YYYY-MM-DD)`) and migrate the entry's section in the file accordingly. Sections by status (Open / Fixed / Won't Fix / Deferred) keep the file readable; the `Status:` field is the source of truth and parseable by tooling.
+
+**Maintenance rules:**
+
+1. **Stable IDs.** `BUG-001`, `BUG-002`, …, append-only. Referenced from commits, CHANGELOG `### Fixed`, ATTACK_VECTORS (when a bug pattern warrants a new vector), DECISIONS (when a fix is significant enough to be a decision), and IMPROVEMENTS (when a bug fix surfaces an improvement candidate).
+2. **Log when found, not silently fixed.** See Maintenance Rule 8 below — the discipline that makes BUGS.md useful as a catalogue rather than a decaying after-the-fact record.
+3. **Reproduction is not optional for open bugs.** An open entry without reproduction steps is a report, not a bug; mark such entries explicitly (e.g. "Reproduction: not yet isolated — see Notes for the symptom pattern") rather than leaving the field blank.
+4. **Cross-reference both directions.** When a BUG entry references an ATTACK_VECTORS, DECISIONS, IMPROVEMENTS, or another BUG entry, the target should reference back. Same tooling caveat as Maintenance Rule 6.
+
+### `IMPROVEMENTS.md`
+
+The catalogue of code-quality improvements, refactors, and architectural changes proposed during development. The dual of `BUGS.md`: bugs are things that are *broken*; improvements are things that *work but could be better* (clarity, reuse, maintainability, performance, future flexibility).
+
+Improvements are distinct from `FEATURES.md` candidate-feature entries (which are uncommitted *user-facing capabilities*) and from `DECISIONS.md` proposed-status entries (which record a *choice between alternatives*). An IMP entry is at an earlier stage than either — the question isn't "which alternative?" or "is this user-visible?" but "is this internal change worth doing at all?"
+
+**File header:**
+
+```markdown
+# Improvements
+
+Catalogue of code-quality improvements, refactors, and architectural
+changes proposed during development. Per the project workflow,
+improvements are **logged here when noticed, not silently applied**
+(see Maintenance Rule 8). The author decides whether to apply, defer,
+or decline.
+
+This is the dual of BUGS.md: bugs are things that are broken,
+improvements are things that work but could be better.
+
+Status vocabulary: suggested | applied | declined | deferred.
+Effort vocabulary: trivial | small | medium | large.
+```
+
+**Entry format:**
+
+```markdown
+### IMP-021: `:` as a statement separator
+**Status:** applied (2026-04-29)
+**Location:** [core_math/src/core_math.cpp](core_math/src/core_math.cpp), [graph_ui/src/ui_controller.cpp](graph_ui/src/ui_controller.cpp)
+**Effort:** small
+**Description.** With Variables A–Z + STO landed (IMP-014), the natural next step was chained statements: `5→A:A+1→A`. The `.` CalcKey already had a `:` ALPHA corner label (placeholder); wiring it kept the layout honest.
+**Proposal.** Add `Token::Colon`. `evaluate()` short-circuits on Colon — splits the token stream into segments, recurses per segment, returns the last non-empty result. Errors abort the chain immediately, but earlier Sto mutations commit (matching TI-83 per-statement semantics).
+**Trade-offs.** Recursive `evaluate()` over flatter sequential-loop approach: chose recursion because the existing function has heavy local state and refactoring for non-recursion would have been a bigger change for no behavioural difference. Recursion depth bounded by number of `:` tokens — won't blow the stack.
+**Notes.** Surfaced BUG-019 (latent `std::stod` crash on bare `.`) during testing; fixed transparently in the same session since it blocked GUI verification.
+```
+
+**Required fields per entry.** Status; Found (discovery date in YYYY-MM-DD, with session/commit context if useful); Location (file path or "cross-cutting"); Effort; Description (what could be improved and why); Proposal (how to do it); Trade-offs (what we'd give up or risk); Notes (related context, dependencies on other work).
+
+**Trade-offs are not optional.** An entry without `Trade-offs:` is a feature request, not an improvement candidate. The trade-off field is what makes the entry useful for later adjudication — without it, the user revisiting the entry can't evaluate whether to apply it, since the reasons-not-to are missing.
+
+**Maintenance rules:**
+
+1. **Stable IDs.** `IMP-001`, `IMP-002`, …, append-only. Referenced from commits, CHANGELOG `### Changed` (when applied), BUGS (when a bug fix surfaces an improvement, or vice versa), DECISIONS (when applying needs a recorded choice), and FEATURES (when applying produces a user-visible behavior change worth surfacing).
+2. **Log when noticed, not silently applied.** See Maintenance Rule 8 — the same discipline that makes BUGS.md useful applies here.
+3. **Trade-offs are not optional.** Reject entries without trade-offs at review time; the rule is what keeps IMPROVEMENTS from collapsing into a wish list.
+4. **Cross-reference both directions.** When an IMP references a BUG, DECISION, or another IMP, the target references back.
+
 ### `BUILD.md`
 
 1. **Supported platforms** — OS, architecture, toolchain versions.
@@ -420,11 +517,13 @@ Follow [Keep a Changelog](https://keepachangelog.com).
 - F-014 ego-centric radar with altitude strip
 ### Changed
 - D-007 confirmed under load testing (no reversal triggered)
+- IMP-021 applied — `:` statement separator
 ### Fixed
 - AV-007: removed stray std::vector growth in Physics::step()
+- BUG-019: bare `.` crash via uncaught `std::stod` exception
 ```
 
-Reference F-, C-, D-, and AV- IDs for full traceability.
+Reference F-, C-, D-, AV-, BUG-, and IMP- IDs for full traceability.
 
 ### Other Tier 3 docs
 
@@ -459,11 +558,12 @@ This integration section is deliberately brief — a fuller specification, inclu
 
 1. **Status header refresh.** Whenever you open a project after >2 weeks away, update `README.md`'s Last reviewed date and Status if drifted.
 2. **CLAUDE.md is current state, not history.** Rewrite when state changes; don't append.
-3. **Append-only IDs.** FEATURES (F-), CLAIMS (C-), DECISIONS (D-), ATTACK_VECTORS (AV-) all use append-only sequential IDs. Withdrawn/superseded entries get a status flag, never deletion — outside references may still point at them.
+3. **Append-only IDs.** FEATURES (F-), CLAIMS (C-), DECISIONS (D-), ATTACK_VECTORS (AV-), BUGS (BUG-), and IMPROVEMENTS (IMP-) all use append-only sequential IDs. Withdrawn/superseded entries get a status flag, never deletion — outside references may still point at them.
 4. **ROADMAP phases are append-only.** Mark complete, don't delete.
 5. **One source of truth per fact.** A constant defined in `SPEC.md` should not be duplicated in `README.md`. Link instead.
 6. **Cross-references both directions, with tooling.** When DECISIONS-N cites ATTACK-VECTOR-M, ATTACK-VECTOR-M should cite DECISIONS-N back. Same for FEATURES ↔ DECISIONS, CLAIMS ↔ DECISIONS, and CLAIMS ↔ ATTACK_VECTORS where applicable. This rule decays without enforcement: a pre-commit hook walking all docs, building the cross-reference graph, and reporting broken or unidirectional links is the canonical fix (a `tools/check_xrefs.py` script is one illustrative implementation, not part of this standard). Without such tooling, treat the rule as aspirational rather than enforced — and acknowledge in `CLAUDE.md` that cross-references may be stale.
 7. **Docs are part of the commit.** A code change that invalidates documentation but doesn't update it is an incomplete commit.
+8. **Log when found, not silently acted on.** When a bug is discovered or an improvement candidate is noticed during work on something else, log it in `BUGS.md` / `IMPROVEMENTS.md` rather than fix or apply it inline. The author (or, for AI-partner workflows, the user) decides whether to act immediately, defer, or decline. This rule is what makes BUGS and IMPROVEMENTS useful catalogues: their value is completeness, and completeness requires that in-flight discoveries are recorded before they evaporate into commit-message footnotes. This is especially load-bearing for AI partners, which default to acting on discoveries rather than logging them. Applies only when `BUGS.md` and/or `IMPROVEMENTS.md` exist in the project; where neither exists, the rule is moot.
 
 ### Evolution of this standard
 
@@ -475,7 +575,7 @@ Backward compatibility is preserved by the append-only ID rule: no revision of t
 
 **Recursive application to the host repo.** The repository that hosts the standard should itself follow the standard. Where the standard's prescriptions don't apply cleanly to a documentation-only repo (see the Documentation-as-deliverable Workflow Variation above), each exemption is recorded as a `DECISIONS.md` entry in the host repo's own DECISIONS log, naming the exempt document and the reason. The pattern of a periodic self-audit (running the audit prompt in `PROMPTS.md` or equivalent against the host repo) is the recommended mechanism for catching drift, internal contradictions, and meta-level gaps. The first such audit on this repo (2026-05-13) discovered the original "Tier 1 — no exceptions" / cost-note contradiction and motivated this revision; this is the canonical case for what the recursive check is for.
 
-**Project-specific extensions.** Projects may add document types beyond those the standard names (this repo, for example, adds `PROMPTS.md` for cold-start aid; another project might add `BUDGET.md`, `RELEASE_PROCESS.md`, or domain-specific files). Such extensions are not violations of the standard provided that (a) the new document is recorded in the project's `DECISIONS.md` with the reason for adding it, (b) it does not collide with reserved names (`README`, `FEATURES`, `CLAIMS`, `DECISIONS`, `ARCHITECTURE`, `SPEC`, `ATTACK_VECTORS`, `BUILD`, `CHANGELOG`, `CLAUDE`, `ROADMAP`, `VOCABULARY`, `TESTING`, `SECURITY`, `CONTRIBUTING`, `BENCHMARKS`, `CITATION`), and (c) it follows the same conventions as analogous standard documents (stable IDs if it lists entries; status header if it has lifecycle state). The standard deliberately does not enumerate every possible document type; project extension is the supported escape hatch.
+**Project-specific extensions.** Projects may add document types beyond those the standard names (this repo, for example, adds `PROMPTS.md` for cold-start aid; another project might add `BUDGET.md`, `RELEASE_PROCESS.md`, or domain-specific files). Such extensions are not violations of the standard provided that (a) the new document is recorded in the project's `DECISIONS.md` with the reason for adding it, (b) it does not collide with reserved names (`README`, `FEATURES`, `CLAIMS`, `DECISIONS`, `ARCHITECTURE`, `SPEC`, `ATTACK_VECTORS`, `BUGS`, `IMPROVEMENTS`, `BUILD`, `CHANGELOG`, `CLAUDE`, `ROADMAP`, `VOCABULARY`, `TESTING`, `SECURITY`, `CONTRIBUTING`, `BENCHMARKS`, `CITATION`), and (c) it follows the same conventions as analogous standard documents (stable IDs if it lists entries; status header if it has lifecycle state). The standard deliberately does not enumerate every possible document type; project extension is the supported escape hatch.
 
 ---
 
@@ -676,6 +776,77 @@ Project-specific failure modes. Severity: Critical | Major | Minor.
 **History.** {When/how this vector was identified, prior incidents.}
 ```
 
+### `BUGS.md` skeleton
+
+```markdown
+# Bugs
+
+Catalogue of bugs discovered during development. Per Maintenance Rule 8,
+bugs are logged here when found, not silently fixed. The author decides
+whether to fix immediately, defer, or leave alone.
+
+Status vocabulary: open | fixed | wontfix | deferred.
+Severity vocabulary: low | medium | high.
+
+## Open
+
+### BUG-001: {short title}
+**Status:** open
+**Found:** YYYY-MM-DD ({session/commit context})
+**Location:** {path/to/file.ext:line, or "cross-cutting"}
+**Severity:** {low | medium | high}
+**Description.** {What's wrong and why it matters.}
+**Reproduction.** {Minimum steps to trigger.}
+**Notes.** {Related context, suggested fix, links to BUG/IMP/D/AV entries.}
+
+## Fixed
+{Entries with `Status: fixed (YYYY-MM-DD)`.}
+
+## Won't Fix
+{Entries with `Status: wontfix`.}
+
+## Deferred
+{Entries with `Status: deferred`.}
+```
+
+### `IMPROVEMENTS.md` skeleton
+
+```markdown
+# Improvements
+
+Catalogue of code-quality improvements, refactors, and architectural
+changes proposed during development. Per Maintenance Rule 8, improvements
+are logged here when noticed, not silently applied. The author decides
+whether to apply, defer, or decline.
+
+This is the dual of BUGS.md: bugs are broken; improvements work but
+could be better.
+
+Status vocabulary: suggested | applied | declined | deferred.
+Effort vocabulary: trivial | small | medium | large.
+
+## Suggested
+
+### IMP-001: {short title}
+**Status:** suggested
+**Found:** YYYY-MM-DD ({session/commit context})
+**Location:** {path/to/file.ext:line, or "cross-cutting"}
+**Effort:** {trivial | small | medium | large}
+**Description.** {What could be improved and why.}
+**Proposal.** {How to do it.}
+**Trade-offs.** {What we'd give up or risk. Required — without this the entry is a feature request, not a candidate improvement.}
+**Notes.** {Related context, dependencies on other work.}
+
+## Applied
+{Entries with `Status: applied (YYYY-MM-DD)`.}
+
+## Declined
+{Entries with `Status: declined`, kept as audit trail.}
+
+## Deferred
+{Entries with `Status: deferred`.}
+```
+
 ### `CLAUDE.md` skeleton
 
 ````markdown
@@ -781,5 +952,7 @@ When starting a new project, ask:
 8. Does this project share terms/types with a sibling repo? → Add **`VOCABULARY.md`**.
 9. Will external contributors or security researchers interact with the repo? → Add **`CONTRIBUTING.md`** / **`SECURITY.md`**.
 10. Is performance a stated requirement? → Add **`BENCHMARKS.md`**.
+11. Do you want bug history in-repo (rather than relying solely on GitHub Issues / Jira / Linear)? → Add **`BUGS.md`**. Especially valuable for solo-dev and AI-partner workflows; redundant with most external trackers.
+12. Do you want a tracked, persistent list of candidate refactors and code-quality improvements (distinct from features and decisions)? → Add **`IMPROVEMENTS.md`**. Pairs with `BUGS.md` under the same "log when found, not silently acted on" discipline (Maintenance Rule 8).
 
 If in doubt, start with Tier 1 + `ARCHITECTURE.md` + `DECISIONS.md` and add others as the project grows and friction reveals which are needed.
